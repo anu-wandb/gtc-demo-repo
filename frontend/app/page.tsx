@@ -284,7 +284,7 @@ export default function Home() {
                 <span className="font-mono text-accent">{numEnvs}</span>
               </div>
               {(() => {
-                const envOptions = [512, 1024, 4096, 8192, 16384, 32768];
+                const envOptions = [512, 1024, 4096, 8192, 16384];
                 const idx = envOptions.indexOf(numEnvs);
                 return (
                   <input
