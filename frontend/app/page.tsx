@@ -110,7 +110,7 @@ export default function Home() {
           Robots come in a lot of shapes and sizes.
         </p>
         <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
-          Today we will train a robot hand with
+          Today we will train a robot arm with
           <br />
           <span className="text-accent">GPU-accelerated RL</span>
         </h1>
@@ -195,9 +195,9 @@ export default function Home() {
 
         {/* Blueprint card */}
         <div className="mt-12 w-full max-w-md rounded-xl border border-zinc-800 bg-zinc-900/60 p-6 text-left">
-          <h2 className="text-lg font-semibold text-zinc-100">Take this home</h2>
+          <h2 className="text-lg font-semibold text-zinc-100">Scale it up on your infra</h2>
           <p className="mt-2 text-sm text-zinc-400">
-            Run this yourself on any CoreWeave cluster using the W&amp;B Isaac Lab Blueprint.
+            Run this yourself on any NVIDIA RTX GPU cluster using the NVIDIA + W&amp;B Isaac Lab Blueprint.
           </p>
           <a
             href="https://github.com/anu-wandb/wb-nvidia-isaac-lab/blob/main/NVIDIA_Isaac_Lab_WandB_Blueprint.md"
@@ -255,7 +255,7 @@ export default function Home() {
           rel="noopener noreferrer"
           className="mt-1.5 inline-block text-xs text-zinc-500 hover:text-zinc-300"
         >
-          Get your key at wandb.ai/authorize &nearr;
+          Get your key at wandb.ai/authorize
         </a>
 
         {/* Advanced settings */}
