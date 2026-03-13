@@ -230,7 +230,7 @@ export default function Home() {
 
         {/* Team name */}
         <label className="mt-8 block text-sm font-medium text-zinc-300">
-          Your W&amp;B team name
+          Your W&amp;B team name <span className="text-xs text-zinc-600">(Your team name is part of your W&amp;B URL: wandb.ai/&lt;team-name&gt;. Use &lt;team-name&gt; here.)</span>
         </label>
         <input
           type="text"
