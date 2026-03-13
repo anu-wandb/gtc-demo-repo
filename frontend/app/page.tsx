@@ -302,7 +302,7 @@ export default function Home() {
               </div>
               <input
                 type="range"
-                min={100}
+                min={500}
                 max={1500}
                 step={100}
                 value={maxIter}
