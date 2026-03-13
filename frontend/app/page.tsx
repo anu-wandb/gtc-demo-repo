@@ -91,9 +91,9 @@ export default function Home() {
     !loading;
 
   const poweredBy = (
-    <div className="fixed bottom-4 right-4 flex items-center gap-2 opacity-70">
-      <span className="text-xs text-zinc-500">Powered by</span>
-      <img src="/coreweave_logo.svg" alt="CoreWeave" className="h-5" />
+    <div className="fixed bottom-4 right-4 flex items-center gap-3 opacity-80">
+      <span className="text-sm text-zinc-400">Powered by</span>
+      <img src="/coreweave_logo.svg" alt="CoreWeave" className="h-10" />
     </div>
   );
 
