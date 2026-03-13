@@ -110,7 +110,7 @@ export default function Home() {
           Robots come in a lot of shapes and sizes.
         </p>
         <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
-          Today we will train a robot arm with
+          Today you will train a robot arm with
           <br />
           <span className="text-accent">GPU-accelerated RL</span>
         </h1>
@@ -163,8 +163,14 @@ export default function Home() {
         <p className="text-5xl">🚀</p>
         <h1 className="mt-4 text-3xl font-bold sm:text-4xl">Your training job is running!</h1>
         <p className="mt-4 max-w-lg text-zinc-400">
-          Results appear in W&amp;B in ~5&nbsp;minutes once the container starts.
+          You should soon see your W&amp;B dashboard with simulation and metrics from the training job.
         </p>
+
+        <img
+          src="/demo.gif"
+          alt="W&B dashboard demo"
+          className="mt-6 w-full max-w-lg rounded-xl"
+        />
 
         <a
           href={result.wandb_url}
