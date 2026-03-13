@@ -6,8 +6,10 @@ WORKDIR /app
 ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 
-COPY package.json ./
-RUN npm install --legacy-peer-deps
+COPY package*.json ./
+# Strip Mac-only swc binary from package.json before installing on Linux
+RUN sed -i '/@next\/swc-darwin-arm64/d' package.json && \
+    npm install --legacy-peer-deps
 
 COPY . .
 RUN npm run build
