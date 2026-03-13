@@ -24,6 +24,7 @@ ALLOWED_ORIGINS = os.environ.get("ALLOWED_ORIGINS", "*")
 
 DB_PATH = Path(__file__).parent / "data" / "runs.db"
 
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("gtc-backend")
 
 # ---------------------------------------------------------------------------
