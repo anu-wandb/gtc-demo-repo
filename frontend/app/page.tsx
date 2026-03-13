@@ -266,6 +266,7 @@ export default function Home() {
         >
           Get your key at wandb.ai/authorize
         </a>
+        <span className="ml-2 text-xs text-zinc-600">(Your API key is never stored)</span>
 
         {/* Advanced settings */}
         <button
