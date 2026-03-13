@@ -207,23 +207,28 @@ async def create_run(req: RunRequest):
 
         # 4. Trigger Northflank job run
         try:
+            nf_payload = {
+                "runtimeEnvironment": {
+                    "WANDB_API_KEY": req.wandb_api_key,
+                    "WANDB_ENTITY": team_name,
+                    "NUM_ENVS": str(req.num_envs),
+                    "MAX_ITERATIONS": str(req.max_iterations),
+                }
+            }
+            nf_url = f"https://api.northflank.com/v1/projects/{NORTHFLANK_PROJECT_ID}/jobs/{NORTHFLANK_JOB_ID}/runs"
+            logger.info("Northflank request URL: %s", nf_url)
+            logger.info("Northflank payload: %s", {k: (v if k != "WANDB_API_KEY" else "***") for k, v in nf_payload["runtimeEnvironment"].items()})
             resp = await client.post(
-                f"https://api.northflank.com/v1/projects/{NORTHFLANK_PROJECT_ID}/jobs/{NORTHFLANK_JOB_ID}/runs",
+                nf_url,
                 headers={
                     "Authorization": f"Bearer {NORTHFLANK_TOKEN}",
                     "Content-Type": "application/json",
                 },
-                json={
-                    "runtimeEnvironment": {
-                        "WANDB_API_KEY": req.wandb_api_key,
-                        "WANDB_ENTITY": team_name,
-                        "NUM_ENVS": str(req.num_envs),
-                        "MAX_ITERATIONS": str(req.max_iterations),
-                    }
-                },
+                json=nf_payload,
             )
             resp.raise_for_status()
             nf_data = resp.json()
+            logger.info("Northflank response: %s", nf_data)
             nf_run_id = nf_data.get("data", {}).get("id", "unknown")
         except Exception:
             logger.exception("Northflank run trigger failed")
