@@ -140,6 +140,21 @@ class TeamRunsResponse(BaseModel):
     runs_remaining: int
     max_runs: int
 
+
+class ValidateRequest(BaseModel):
+    team_name: str = Field(..., min_length=1, max_length=64)
+    wandb_api_key: str = Field(..., min_length=1)
+
+
+class ValidateResponse(BaseModel):
+    key_valid: bool
+    team_valid: bool
+    key_error: str | None = None
+    team_error: str | None = None
+    runs_used: int = 0
+    runs_remaining: int = 0
+    max_runs: int = 0
+
 # ---------------------------------------------------------------------------
 # Endpoints
 # ---------------------------------------------------------------------------
@@ -161,6 +176,65 @@ async def get_runs(team_name: str):
         runs_remaining=max(MAX_RUNS_PER_TEAM - used, 0),
         max_runs=MAX_RUNS_PER_TEAM,
     )
+
+
+@app.post("/validate", response_model=ValidateResponse)
+async def validate_credentials(req: ValidateRequest):
+    team_name = req.team_name.lower().strip()
+    result = ValidateResponse(key_valid=False, team_valid=False)
+
+    if not TEAM_NAME_RE.match(team_name):
+        result.team_error = "Invalid team name format."
+        result.key_error = "Enter a valid team name first."
+        return result
+
+    async with httpx.AsyncClient(timeout=15) as client:
+        # Validate API key
+        try:
+            resp = await client.post(
+                "https://api.wandb.ai/graphql",
+                auth=("api", req.wandb_api_key),
+                json={"query": "{ viewer { id username } }"},
+            )
+            viewer = resp.json().get("data", {}).get("viewer")
+        except Exception:
+            viewer = None
+
+        if not viewer:
+            result.key_valid = False
+            result.key_error = "Invalid W&B API key. Get yours at wandb.ai/authorize."
+            result.team_error = "Cannot validate team without a valid API key."
+            return result
+
+        result.key_valid = True
+
+        # Validate team exists
+        try:
+            resp = await client.post(
+                "https://api.wandb.ai/graphql",
+                auth=("api", req.wandb_api_key),
+                json={
+                    "query": "query($name: String!) { entity(name: $name) { id name } }",
+                    "variables": {"name": team_name},
+                },
+            )
+            entity = resp.json().get("data", {}).get("entity")
+        except Exception:
+            entity = None
+
+        if not entity:
+            result.team_valid = False
+            result.team_error = f"W&B team '{team_name}' not found. Check the name and try again."
+            return result
+
+        result.team_valid = True
+
+    # Runs remaining
+    used = _count_runs(team_name)
+    result.runs_used = used
+    result.runs_remaining = max(MAX_RUNS_PER_TEAM - used, 0)
+    result.max_runs = MAX_RUNS_PER_TEAM
+    return result
 
 
 @app.post("/run", response_model=RunResponse)

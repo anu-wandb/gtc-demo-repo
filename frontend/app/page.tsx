@@ -24,35 +24,62 @@ export default function Home() {
   const [runsRemaining, setRunsRemaining] = useState<number | null>(null);
   const [runsMax, setRunsMax] = useState(5);
   const [loading, setLoading] = useState(false);
+  const [validating, setValidating] = useState(false);
+  const [keyValid, setKeyValid] = useState<boolean | null>(null);
+  const [teamValid, setTeamValid] = useState<boolean | null>(null);
+  const [keyError, setKeyError] = useState("");
+  const [teamError, setTeamError] = useState("");
   const [error, setError] = useState("");
   const [result, setResult] = useState<RunResult | null>(null);
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Fetch runs remaining when team_name changes (debounced)
-  const fetchRuns = useCallback((name: string) => {
+  // Validate both team name and API key together (debounced)
+  const validate = useCallback((name: string, key: string) => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    if (name.length < 3) {
+
+    // Reset validation state when inputs are incomplete
+    if (name.trim().length < 3 || key.trim().length < 10) {
+      setKeyValid(null);
+      setTeamValid(null);
+      setKeyError("");
+      setTeamError("");
       setRunsRemaining(null);
       return;
     }
+
     debounceRef.current = setTimeout(async () => {
+      setValidating(true);
       try {
-        const res = await fetch(`${API}/runs/${encodeURIComponent(name)}`);
+        const res = await fetch(`${API}/validate`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ team_name: name, wandb_api_key: key }),
+        });
         if (res.ok) {
           const data = await res.json();
-          setRunsRemaining(data.runs_remaining);
-          setRunsMax(data.max_runs);
+          setKeyValid(data.key_valid);
+          setTeamValid(data.team_valid);
+          setKeyError(data.key_error ?? "");
+          setTeamError(data.team_error ?? "");
+          if (data.key_valid && data.team_valid) {
+            setRunsRemaining(data.runs_remaining);
+            setRunsMax(data.max_runs);
+          } else {
+            setRunsRemaining(null);
+          }
         }
       } catch {
-        // silently ignore — badge just won't show
+        // silently ignore
+      } finally {
+        setValidating(false);
       }
-    }, 500);
+    }, 600);
   }, []);
 
   useEffect(() => {
-    fetchRuns(teamName);
-  }, [teamName, fetchRuns]);
+    validate(teamName, apiKey);
+  }, [teamName, apiKey, validate]);
 
   const handleSubmit = async () => {
     setError("");
@@ -84,11 +111,12 @@ export default function Home() {
   };
 
   const canSubmit =
-    teamName.trim() !== "" &&
-    apiKey.trim() !== "" &&
+    keyValid === true &&
+    teamValid === true &&
     runsRemaining !== null &&
     runsRemaining > 0 &&
-    !loading;
+    !loading &&
+    !validating;
 
   const poweredBy = (
     <div className="fixed bottom-4 right-4 flex items-center gap-3 opacity-80">
@@ -245,6 +273,14 @@ export default function Home() {
           className="mt-2 w-full rounded-lg border border-zinc-700 bg-zinc-900 px-4 py-2.5 text-zinc-100 placeholder-zinc-600 outline-none focus:border-accent"
         />
 
+        {/* Team validation feedback */}
+        {teamError && (
+          <p className="mt-2 text-sm text-red-400">{teamError}</p>
+        )}
+        {teamValid === true && (
+          <p className="mt-2 text-sm text-green-400">Team verified</p>
+        )}
+
         {/* Runs remaining badge */}
         {runsRemaining !== null && (
           <p className={`mt-2 text-sm ${runsRemaining === 0 ? "text-red-400" : "text-zinc-400"}`}>
@@ -271,6 +307,19 @@ export default function Home() {
         >
           Get your key at wandb.ai/authorize
         </a>
+
+        {/* API key validation feedback */}
+        {keyError && (
+          <p className="mt-2 text-sm text-red-400">{keyError}</p>
+        )}
+        {keyValid === true && (
+          <p className="mt-2 text-sm text-green-400">API key verified</p>
+        )}
+
+        {/* Validating indicator */}
+        {validating && (
+          <p className="mt-2 text-sm text-zinc-500">Validating credentials...</p>
+        )}
 
         {/* Advanced settings */}
         <button
