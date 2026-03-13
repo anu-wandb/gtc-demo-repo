@@ -249,7 +249,7 @@ export default function Home() {
 
         {/* API key */}
         <label className="mt-6 block text-sm font-medium text-zinc-300">
-          Your W&amp;B API key
+          Your W&amp;B API key <span className="text-xs text-zinc-600">(Your API key is never stored)</span>
         </label>
         <input
           type="password"
@@ -266,7 +266,6 @@ export default function Home() {
         >
           Get your key at wandb.ai/authorize
         </a>
-        <span className="ml-2 text-xs text-zinc-600">(Your API key is never stored)</span>
 
         {/* Advanced settings */}
         <button
