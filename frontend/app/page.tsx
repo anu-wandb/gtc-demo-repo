@@ -288,10 +288,13 @@ export default function Home() {
         {advancedOpen && (
           <div className="mt-4 space-y-5 rounded-lg border border-zinc-800 bg-zinc-900/50 p-5">
             {/* Num envs slider */}
-            <div>
+            <div className="group/env relative">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-zinc-300">Parallel environments</span>
                 <span className="font-mono text-accent">{numEnvs}</span>
+              </div>
+              <div className="pointer-events-none absolute left-0 right-0 -bottom-12 z-10 rounded-md bg-zinc-800 px-3 py-2 text-xs text-zinc-300 opacity-0 shadow-lg transition-opacity group-hover/env:opacity-100">
+                Each environment is an independent simulation. More Envs = Faster Training.
               </div>
               {(() => {
                 const envOptions = [512, 1024, 4096, 8192, 16384];
@@ -311,10 +314,13 @@ export default function Home() {
             </div>
 
             {/* Max iterations slider */}
-            <div>
+            <div className="group/iter relative">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-zinc-300">Training iterations</span>
                 <span className="font-mono text-accent">{maxIter}</span>
+              </div>
+              <div className="pointer-events-none absolute left-0 right-0 -bottom-12 z-10 rounded-md bg-zinc-800 px-3 py-2 text-xs text-zinc-300 opacity-0 shadow-lg transition-opacity group-hover/iter:opacity-100">
+                Each iteration is a full batch of experience. Dexsuite lift task typically converges around 800–1200.
               </div>
               <input
                 type="range"
