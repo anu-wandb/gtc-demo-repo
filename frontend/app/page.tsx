@@ -283,15 +283,21 @@ export default function Home() {
                 <span className="text-zinc-300">Parallel environments</span>
                 <span className="font-mono text-accent">{numEnvs}</span>
               </div>
-              <input
-                type="range"
-                min={512}
-                max={16384}
-                step={512}
-                value={numEnvs}
-                onChange={(e) => setNumEnvs(Number(e.target.value))}
-                className="mt-2 w-full"
-              />
+              {(() => {
+                const envOptions = [512, 1024, 4096, 8192, 16384, 32768];
+                const idx = envOptions.indexOf(numEnvs);
+                return (
+                  <input
+                    type="range"
+                    min={0}
+                    max={envOptions.length - 1}
+                    step={1}
+                    value={idx === -1 ? 1 : idx}
+                    onChange={(e) => setNumEnvs(envOptions[Number(e.target.value)])}
+                    className="mt-2 w-full"
+                  />
+                );
+              })()}
             </div>
 
             {/* Max iterations slider */}
