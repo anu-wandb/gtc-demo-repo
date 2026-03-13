@@ -163,7 +163,7 @@ export default function Home() {
         <p className="text-5xl">🚀</p>
         <h1 className="mt-4 text-3xl font-bold sm:text-4xl">Your training job is running!</h1>
         <p className="mt-4 max-w-lg text-zinc-400">
-          You should soon see your W&amp;B dashboard with simulation and metrics from the training job.
+          You should soon see your W&amp;B dashboard with simulation videos and metrics from the training job. The training environment can take up to 5 minutes to spin up.
         </p>
 
         <img
