@@ -169,7 +169,7 @@ export default function Home() {
         <img
           src="/demo.gif"
           alt="W&B dashboard demo"
-          className="mt-6 w-full max-w-lg rounded-xl"
+          className="mt-6 w-full max-w-3xl rounded-xl"
         />
 
         <a
@@ -184,6 +184,9 @@ export default function Home() {
         <p className="mt-6 text-sm text-zinc-500">
           You&apos;ve used {result.runs_used} of {runsMax} runs for team{" "}
           <span className="text-zinc-300">{result.team_name}</span>
+        </p>
+        <p className="mt-3 max-w-lg text-sm text-zinc-500">
+          You are getting free access to CoreWeave AI Cloud and W&amp;B software for tracking the ML training to run these jobs.
         </p>
 
         {runsRemaining !== null && runsRemaining > 0 && (
