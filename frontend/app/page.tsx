@@ -163,7 +163,7 @@ export default function Home() {
         <p className="text-5xl">🚀</p>
         <h1 className="mt-4 text-3xl font-bold sm:text-4xl">Your training job is running!</h1>
         <p className="mt-4 max-w-lg text-zinc-400">
-          You should soon see your W&amp;B dashboard with simulation videos and metrics from the training job. The training environment can take up to 5 minutes to spin up.
+          You should soon see your W&amp;B dashboard with simulation videos and metrics from the training job.
         </p>
 
         <img
@@ -171,6 +171,10 @@ export default function Home() {
           alt="W&B dashboard demo"
           className="mt-6 w-full max-w-3xl rounded-xl"
         />
+
+        <p className="mt-4 text-sm text-zinc-500">
+          The training environment can take up to 5–10 minutes to spin up.
+        </p>
 
         <a
           href={result.wandb_url}
@@ -294,7 +298,7 @@ export default function Home() {
                 <span className="font-mono text-accent">{numEnvs}</span>
               </div>
               <div className="pointer-events-none absolute left-0 right-0 -bottom-12 z-10 rounded-md bg-zinc-800 px-3 py-2 text-xs text-zinc-300 opacity-0 shadow-lg transition-opacity group-hover/env:opacity-100">
-                Each environment is an independent simulation. More Envs = Faster Training.
+                Each environment is an independent simulation. More Environments = Faster Training.
               </div>
               {(() => {
                 const envOptions = [512, 1024, 4096, 8192, 16384];
