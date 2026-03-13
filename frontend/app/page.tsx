@@ -286,7 +286,7 @@ export default function Home() {
               <input
                 type="range"
                 min={512}
-                max={4096}
+                max={32768}
                 step={512}
                 value={numEnvs}
                 onChange={(e) => setNumEnvs(Number(e.target.value))}
