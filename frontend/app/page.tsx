@@ -173,7 +173,7 @@ export default function Home() {
         />
 
         <p className="mt-4 text-sm text-zinc-500">
-          The training environment can take up to 5–10 minutes to spin up.
+          The training environment can take up to 5–10 minutes to spin up. Your dashboard will be available through the view dashboard button once the training starts.
         </p>
 
         <a
