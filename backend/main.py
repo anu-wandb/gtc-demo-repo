@@ -181,33 +181,58 @@ async def create_run(req: RunRequest):
 
     async with httpx.AsyncClient(timeout=30) as client:
         # 2. Validate W&B API key
-        resp = await client.post(
-            "https://api.wandb.ai/graphql",
-            auth=wandb_auth,
-            json={"query": "{ viewer { id username } }"},
-        )
-        viewer = resp.json().get("data", {}).get("viewer")
-        if not viewer:
+        try:
+            resp = await client.post(
+                "https://api.wandb.ai/graphql",
+                auth=wandb_auth,
+                json={"query": "{ viewer { id username } }"},
+            )
+            resp.raise_for_status()
+            viewer_data = resp.json()
+            logger.info("W&B viewer response: %s", viewer_data)
+            viewer = viewer_data.get("data", {}).get("viewer")
+        except Exception:
+            logger.exception("W&B API key validation failed")
             raise HTTPException(
                 status_code=401,
                 detail="Invalid W&B API key. Get yours at wandb.ai/authorize.",
             )
+        if not viewer or not viewer.get("username"):
+            logger.warning("W&B API key invalid — viewer: %s", viewer)
+            raise HTTPException(
+                status_code=401,
+                detail="Invalid W&B API key. Get yours at wandb.ai/authorize.",
+            )
+        logger.info("W&B API key valid for user: %s", viewer.get("username"))
 
-        # 3. Validate W&B team exists (parameterized to prevent GraphQL injection)
-        resp = await client.post(
-            "https://api.wandb.ai/graphql",
-            auth=wandb_auth,
-            json={
-                "query": "query($name: String!) { entity(name: $name) { id name } }",
-                "variables": {"name": team_name},
-            },
-        )
-        entity = resp.json().get("data", {}).get("entity")
-        if not entity:
+        # 3. Validate W&B team exists and user has access
+        try:
+            resp = await client.post(
+                "https://api.wandb.ai/graphql",
+                auth=wandb_auth,
+                json={
+                    "query": "query($name: String!) { entity(name: $name) { id name available } }",
+                    "variables": {"name": team_name},
+                },
+            )
+            resp.raise_for_status()
+            entity_data = resp.json()
+            logger.info("W&B entity response for '%s': %s", team_name, entity_data)
+            entity = entity_data.get("data", {}).get("entity")
+        except Exception:
+            logger.exception("W&B entity validation failed")
             raise HTTPException(
                 status_code=404,
                 detail=f"W&B team '{team_name}' not found. Check the name and try again.",
             )
+        # Reject if entity is missing, name doesn't match, or entity is "available" (not yet created)
+        if not entity or entity.get("name") != team_name or entity.get("available", False):
+            logger.warning("W&B team '%s' not found — entity: %s", team_name, entity)
+            raise HTTPException(
+                status_code=404,
+                detail=f"W&B team '{team_name}' not found. Check the name and try again.",
+            )
+        logger.info("W&B team '%s' verified", team_name)
 
         # 4. Trigger Northflank job run
         try:
