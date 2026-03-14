@@ -303,7 +303,7 @@ export default function Home() {
                 Each environment is an independent simulation. More Environments = More Parallelism.
               </div>
               {(() => {
-                const envOptions = [512, 1024, 4096, 8192];
+                const envOptions = [512, 1024, 4096, 8192, 16384];
                 const idx = envOptions.indexOf(numEnvs);
                 return (
                   <input
@@ -330,9 +330,9 @@ export default function Home() {
               </div>
               <input
                 type="range"
-                min={500}
-                max={1200}
-                step={100}
+                min={300}
+                max={1500}
+                step={300}
                 value={maxIter}
                 onChange={(e) => setMaxIter(Number(e.target.value))}
                 className="mt-2 w-full"
