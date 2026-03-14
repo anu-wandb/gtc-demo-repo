@@ -179,74 +179,88 @@ async def create_run(req: RunRequest):
     wandb_api_key = req.wandb_api_key.strip()
     wandb_auth = ("api", wandb_api_key)
 
-    async with httpx.AsyncClient(timeout=30) as client:
-        # 2. Validate W&B API key
-        try:
+    # ── Step 2: Validate W&B API key ─────────────────────────────────────
+    logger.info("Validating W&B API key...")
+    try:
+        async with httpx.AsyncClient(timeout=15) as client:
             resp = await client.post(
                 "https://api.wandb.ai/graphql",
                 auth=wandb_auth,
                 json={"query": "{ viewer { id username } }"},
             )
-            resp.raise_for_status()
-            viewer_data = resp.json()
-            logger.info("W&B viewer response: %s", viewer_data)
-            viewer = viewer_data.get("data", {}).get("viewer")
-        except Exception:
-            logger.exception("W&B API key validation failed")
-            raise HTTPException(
-                status_code=401,
-                detail="Invalid W&B API key. Get yours at wandb.ai/authorize.",
-            )
-        if not viewer or not viewer.get("username"):
-            logger.warning("W&B API key invalid — viewer: %s", viewer)
-            raise HTTPException(
-                status_code=401,
-                detail="Invalid W&B API key. Get yours at wandb.ai/authorize.",
-            )
-        logger.info("W&B API key valid for user: %s", viewer.get("username"))
+        resp.raise_for_status()
+        viewer_data = resp.json()
+        logger.info("W&B viewer response: %s", viewer_data)
+        viewer = (viewer_data.get("data") or {}).get("viewer")
+    except Exception:
+        logger.exception("W&B API key validation request failed")
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid W&B API key. Get yours at wandb.ai/authorize.",
+        )
 
-        # 3. Validate W&B team exists and user has access
-        try:
+    if not viewer or not viewer.get("username"):
+        logger.warning("W&B API key invalid — viewer: %s", viewer)
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid W&B API key. Get yours at wandb.ai/authorize.",
+        )
+    logger.info("PASS: W&B API key valid for user '%s'", viewer["username"])
+
+    # ── Step 3: Validate W&B team exists ─────────────────────────────────
+    logger.info("Validating W&B team '%s'...", team_name)
+    try:
+        async with httpx.AsyncClient(timeout=15) as client:
             resp = await client.post(
                 "https://api.wandb.ai/graphql",
                 auth=wandb_auth,
                 json={
-                    "query": "query($name: String!) { entity(name: $name) { id name available } }",
+                    "query": "query($name: String!) { entity(name: $name) { id name } }",
                     "variables": {"name": team_name},
                 },
             )
-            resp.raise_for_status()
-            entity_data = resp.json()
-            logger.info("W&B entity response for '%s': %s", team_name, entity_data)
-            entity = entity_data.get("data", {}).get("entity")
-        except Exception:
-            logger.exception("W&B entity validation failed")
-            raise HTTPException(
-                status_code=404,
-                detail=f"W&B team '{team_name}' not found. Check the name and try again.",
-            )
-        # Reject if entity is missing, name doesn't match, or entity is "available" (not yet created)
-        if not entity or entity.get("name") != team_name or entity.get("available", False):
-            logger.warning("W&B team '%s' not found — entity: %s", team_name, entity)
-            raise HTTPException(
-                status_code=404,
-                detail=f"W&B team '{team_name}' not found. Check the name and try again.",
-            )
-        logger.info("W&B team '%s' verified", team_name)
+        resp.raise_for_status()
+        entity_data = resp.json()
+        logger.info("W&B entity response for '%s': %s", team_name, entity_data)
+    except Exception:
+        logger.exception("W&B entity validation request failed")
+        raise HTTPException(
+            status_code=404,
+            detail=f"W&B team '{team_name}' not found. Check the name and try again.",
+        )
 
-        # 4. Trigger Northflank job run
-        try:
-            nf_payload = {
-                "runtimeEnvironment": {
-                    "WANDB_API_KEY": wandb_api_key,
-                    "WANDB_ENTITY": team_name,
-                    "NUM_ENVS": str(req.num_envs),
-                    "MAX_ITERATIONS": str(req.max_iterations),
-                }
-            }
-            nf_url = f"https://api.northflank.com/v1/projects/{NORTHFLANK_PROJECT_ID}/jobs/{NORTHFLANK_JOB_ID}/runs"
-            logger.info("Northflank request URL: %s", nf_url)
-            logger.info("Northflank payload: %s", {k: (v if k != "WANDB_API_KEY" else "***") for k, v in nf_payload["runtimeEnvironment"].items()})
+    # Safely extract entity — guard against data being null
+    data = entity_data.get("data")
+    entity = data.get("entity") if isinstance(data, dict) else None
+
+    # Must be a dict with an 'id' and matching 'name'
+    if (
+        not isinstance(entity, dict)
+        or not entity.get("id")
+        or entity.get("name") != team_name
+    ):
+        logger.warning("FAIL: W&B team '%s' not found — raw entity: %s", team_name, entity)
+        raise HTTPException(
+            status_code=404,
+            detail=f"W&B team '{team_name}' not found. Check the name and try again.",
+        )
+    logger.info("PASS: W&B team '%s' verified (id=%s)", team_name, entity["id"])
+
+    # ── Step 4: Trigger Northflank job run ────────────────────────────────
+    logger.info("Triggering Northflank job for team '%s'...", team_name)
+    nf_payload = {
+        "runtimeEnvironment": {
+            "WANDB_API_KEY": wandb_api_key,
+            "WANDB_ENTITY": team_name,
+            "NUM_ENVS": str(req.num_envs),
+            "MAX_ITERATIONS": str(req.max_iterations),
+        }
+    }
+    nf_url = f"https://api.northflank.com/v1/projects/{NORTHFLANK_PROJECT_ID}/jobs/{NORTHFLANK_JOB_ID}/runs"
+    logger.info("Northflank URL: %s", nf_url)
+    logger.info("Northflank env: %s", {k: (v if k != "WANDB_API_KEY" else "***") for k, v in nf_payload["runtimeEnvironment"].items()})
+    try:
+        async with httpx.AsyncClient(timeout=30) as client:
             resp = await client.post(
                 nf_url,
                 headers={
@@ -255,20 +269,21 @@ async def create_run(req: RunRequest):
                 },
                 json=nf_payload,
             )
-            resp.raise_for_status()
-            nf_data = resp.json()
-            logger.info("Northflank response: %s", nf_data)
-            nf_run_id = nf_data.get("data", {}).get("id", "unknown")
-        except Exception:
-            logger.exception("Northflank run trigger failed")
-            raise HTTPException(
-                status_code=500,
-                detail="Failed to start training job. Please try again.",
-            )
+        resp.raise_for_status()
+        nf_data = resp.json()
+        logger.info("Northflank response: %s", nf_data)
+        nf_run_id = nf_data.get("data", {}).get("id", "unknown")
+    except Exception:
+        logger.exception("Northflank run trigger failed")
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to start training job. Please try again.",
+        )
 
     # 5. Record the run
     _insert_run(team_name, nf_run_id, req.num_envs, req.max_iterations)
     used += 1
+    logger.info("Run recorded: team=%s, run_id=%s, used=%d", team_name, nf_run_id, used)
 
     return RunResponse(
         run_id=nf_run_id,
