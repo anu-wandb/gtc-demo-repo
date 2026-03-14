@@ -331,7 +331,7 @@ export default function Home() {
               <input
                 type="range"
                 min={300}
-                max={1500}
+                max={2000}
                 step={300}
                 value={maxIter}
                 onChange={(e) => setMaxIter(Number(e.target.value))}
