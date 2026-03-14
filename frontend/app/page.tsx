@@ -330,9 +330,9 @@ export default function Home() {
               </div>
               <input
                 type="range"
-                min={300}
+                min={400}
                 max={2000}
-                step={300}
+                step={200}
                 value={maxIter}
                 onChange={(e) => setMaxIter(Number(e.target.value))}
                 className="mt-2 w-full"
