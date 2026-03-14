@@ -176,7 +176,8 @@ async def create_run(req: RunRequest):
     if used >= MAX_RUNS_PER_TEAM:
         raise HTTPException(status_code=429, detail="This team has used all 5 training runs.")
 
-    wandb_auth = ("api", req.wandb_api_key)
+    wandb_api_key = req.wandb_api_key.strip()
+    wandb_auth = ("api", wandb_api_key)
 
     async with httpx.AsyncClient(timeout=30) as client:
         # 2. Validate W&B API key
@@ -212,7 +213,7 @@ async def create_run(req: RunRequest):
         try:
             nf_payload = {
                 "runtimeEnvironment": {
-                    "WANDB_API_KEY": req.wandb_api_key,
+                    "WANDB_API_KEY": wandb_api_key,
                     "WANDB_ENTITY": team_name,
                     "NUM_ENVS": str(req.num_envs),
                     "MAX_ITERATIONS": str(req.max_iterations),
