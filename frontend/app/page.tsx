@@ -300,7 +300,7 @@ export default function Home() {
                 <span className="font-mono text-accent">{numEnvs}</span>
               </div>
               <div className="pointer-events-none absolute left-0 right-0 -bottom-12 z-10 rounded-md bg-zinc-800 px-3 py-2 text-xs text-zinc-300 opacity-0 shadow-lg transition-opacity group-hover/env:opacity-100">
-                Each environment is an independent simulation. More Environments = Faster Training.
+                Each environment is an independent simulation. More Environments = More Parallelism.
               </div>
               {(() => {
                 const envOptions = [512, 1024, 4096, 8192, 16384];
@@ -331,7 +331,7 @@ export default function Home() {
               <input
                 type="range"
                 min={500}
-                max={1500}
+                max={1200}
                 step={100}
                 value={maxIter}
                 onChange={(e) => setMaxIter(Number(e.target.value))}
