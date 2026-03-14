@@ -257,7 +257,7 @@ export default function Home() {
         <input
           type="password"
           value={apiKey}
-          onChange={(e) => setApiKey(e.target.value.trim())}
+          onChange={(e) => setApiKey(e.target.value)}
           placeholder="paste your key here"
           className="mt-2 w-full rounded-lg border border-zinc-700 bg-zinc-900 px-4 py-2.5 text-zinc-100 placeholder-zinc-600 outline-none focus:border-accent"
         />
