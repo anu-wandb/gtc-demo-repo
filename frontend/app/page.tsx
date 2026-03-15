@@ -300,7 +300,7 @@ export default function Home() {
                 <span className="font-mono text-accent">{numEnvs}</span>
               </div>
               <div className="pointer-events-none absolute left-0 right-0 -bottom-12 z-10 rounded-md bg-zinc-800 px-3 py-2 text-xs text-zinc-300 opacity-0 shadow-lg transition-opacity group-hover/env:opacity-100">
-                Each environment is an independent simulation. More Environments = More Parallelism.
+                Each environment is an independent simulation. More environments = more training per step.
               </div>
               {(() => {
                 const envOptions = [1024, 4096, 8192, 16384];
