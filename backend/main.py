@@ -123,7 +123,7 @@ class RunRequest(BaseModel):
     team_name: str = Field(..., min_length=1, max_length=64)
     wandb_api_key: str = Field(..., min_length=1)
     num_envs: int = Field(default=1024, ge=1024, le=16384)
-    max_iterations: int = Field(default=1000, ge=300, le=2000)
+    max_iterations: int = Field(default=1200, ge=1000, le=2000)
 
 
 class RunResponse(BaseModel):

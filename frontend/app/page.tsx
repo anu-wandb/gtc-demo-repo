@@ -326,11 +326,11 @@ export default function Home() {
                 <span className="font-mono text-accent">{maxIter}</span>
               </div>
               <div className="pointer-events-none absolute left-0 right-0 -bottom-12 z-10 rounded-md bg-zinc-800 px-3 py-2 text-xs text-zinc-300 opacity-0 shadow-lg transition-opacity group-hover/iter:opacity-100">
-                Each iteration is a full batch of experience. Dexsuite lift task typically converges around 800–1200.
+                Each iteration is a full batch of experience. Dexsuite lift task typically converges around 1600 – 2000.
               </div>
               <input
                 type="range"
-                min={400}
+                min={1000}
                 max={2000}
                 step={200}
                 value={maxIter}
