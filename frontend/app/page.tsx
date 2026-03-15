@@ -303,7 +303,7 @@ export default function Home() {
                 Each environment is an independent simulation. More Environments = More Parallelism.
               </div>
               {(() => {
-                const envOptions = [512, 1024, 4096, 8192, 16384];
+                const envOptions = [1024, 4096, 8192, 16384];
                 const idx = envOptions.indexOf(numEnvs);
                 return (
                   <input
