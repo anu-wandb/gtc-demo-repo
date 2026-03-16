@@ -104,7 +104,7 @@ export default function Home() {
         <img
           src="/robots.gif"
           alt="Robots"
-          className="mb-8 h-40 rounded-2xl sm:h-48"
+          className="mb-8 h-80 rounded-2xl sm:h-96"
         />
         <p className="mb-4 text-lg text-zinc-400">
           Robots come in a lot of shapes and sizes.
