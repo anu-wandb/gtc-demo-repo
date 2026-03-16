@@ -120,6 +120,13 @@ export default function Home() {
           This job will train a DexSuite Humanoid Arm to pick up an object from
           a table based on configs you provide.
         </p>
+
+        <img
+          src="/demo.gif"
+          alt="W&B dashboard demo"
+          className="mt-6 w-full max-w-3xl rounded-xl"
+        />
+
         <p className="mt-4 max-w-2xl text-lg text-zinc-400">
           Results stream live to your Weights&nbsp;&amp;&nbsp;Biases dashboard
           including the simulation videos.{" "}
