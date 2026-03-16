@@ -104,7 +104,7 @@ export default function Home() {
         <img
           src="/robots.gif"
           alt="Robots"
-          className="mb-8 h-40 rounded-xl sm:h-48"
+          className="mb-8 h-40 rounded-2xl sm:h-48"
         />
         <p className="mb-4 text-lg text-zinc-400">
           Robots come in a lot of shapes and sizes.
@@ -124,7 +124,7 @@ export default function Home() {
         <img
           src="/demo.gif"
           alt="W&B dashboard demo"
-          className="mt-6 w-full max-w-3xl rounded-xl"
+          className="mt-6 w-full max-w-xl rounded-xl"
         />
 
         <p className="mt-4 max-w-2xl text-lg text-zinc-400">
